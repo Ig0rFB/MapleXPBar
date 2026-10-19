@@ -7,7 +7,9 @@ public enum MapleXPBarAnchorMode {
     CHATBOX("Chatbox"),
     TOP_LEFT("Top Left"),
     MINIMAP("Minimap"),
-    INVENTORY("Inventory");
+    INVENTORY("Inventory"),
+    // Canvas bottom edge — independent of chatbox size/visibility
+    BOTTOM("Bottom");
 
     private final String menuName;
 
