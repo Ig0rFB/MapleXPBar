@@ -401,13 +401,24 @@ public interface MapleXPBarConfig extends Config
 			keyName = "anchorPoint",
 			name = "Anchor Point",
 			section = positionSizingSection,
-			description = "Which UI piece the offset values are in reference to"
+			description = "Which UI piece the offset values are in reference to." +
+					"<br>Bottom anchors to the bottom of the game window (not the chatbox)."
 	)
 	default MapleXPBarAnchorMode anchorPoint() { return MapleXPBarAnchorMode.CHATBOX; }
 
-	@Range(min=-9999, max=9999)
 	@ConfigItem(
 			position = 1,
+			keyName = "matchWindowWidth",
+			name = "Match Window Width",
+			section = positionSizingSection,
+			description = "When Anchor Point is Bottom, stretch the bar to the full game window width." +
+					"<br>Updates automatically when the window is resized. Ignored for other anchors."
+	)
+	default boolean matchWindowWidth() { return false; }
+
+	@Range(min=-9999, max=9999)
+	@ConfigItem(
+			position = 2,
 			keyName = "manualXOffset",
 			name = "Bar Offset Left/Right",
 			section = positionSizingSection,
@@ -417,7 +428,7 @@ public interface MapleXPBarConfig extends Config
 
 	@Range(min=-9999, max=9999)
 	@ConfigItem(
-			position = 2,
+			position = 3,
 			keyName = "manualYOffset",
 			name = "Bar Offset Up/Down",
 			section = positionSizingSection,
@@ -426,7 +437,7 @@ public interface MapleXPBarConfig extends Config
 	default int manualOffsetY() { return 0; }
 
 	@ConfigItem(
-			position = 3,
+			position = 4,
 			keyName = "tooltipAlignment",
 			name = "Tooltip Alignment",
 			section = positionSizingSection,
@@ -438,7 +449,7 @@ public interface MapleXPBarConfig extends Config
 
 	@Range(min=-9999, max=9999)
 	@ConfigItem(
-			position = 4,
+			position = 5,
 			keyName = "tooltipXOffset",
 			name = "Tooltip Offset Left/Right",
 			section = positionSizingSection,
@@ -448,7 +459,7 @@ public interface MapleXPBarConfig extends Config
 
 	@Range(min=-9999, max=9999)
 	@ConfigItem(
-			position = 5,
+			position = 6,
 			keyName = "tooltipYOffset",
 			name = "Tooltip Offset Up/Down",
 			section = positionSizingSection,
@@ -458,7 +469,7 @@ public interface MapleXPBarConfig extends Config
 
 	@Range(min=-9999, max=9999)
 	@ConfigItem(
-			position = 6,
+			position = 7,
 			keyName = "iconXOffset",
 			name = "Icon Offset Left/Right",
 			section = positionSizingSection,
@@ -468,7 +479,7 @@ public interface MapleXPBarConfig extends Config
 
 	@Range(min=-9999, max=9999)
 	@ConfigItem(
-			position = 7,
+			position = 8,
 			keyName = "iconYOffset",
 			name = "Icon Offset Up/Down",
 			section = positionSizingSection,
@@ -478,7 +489,7 @@ public interface MapleXPBarConfig extends Config
 
 	@Range(min=3, max=50)
 	@ConfigItem(
-			position = 8,
+			position = 9,
 			keyName = "xpbarThickness",
 			name = "Bar Thickness",
 			section = positionSizingSection,
@@ -488,17 +499,18 @@ public interface MapleXPBarConfig extends Config
 
 	@Range(min=1, max=10000)
 	@ConfigItem(
-			position = 9,
+			position = 10,
 			keyName = "xpbarLength",
 			name = "Bar Length",
 			section = positionSizingSection,
-			description = "Adjust the length of the XP bar"
+			description = "Adjust the length of the XP bar." +
+					"<br>Ignored when Match Window Width is enabled with the Bottom anchor."
 	)
 	default int length() { return 512; }
 
 	@Range(min=1, max=100)
 	@ConfigItem(
-			position = 10,
+			position = 11,
 			keyName = "xpTextSize",
 			name = "Font Size",
 			section = positionSizingSection,

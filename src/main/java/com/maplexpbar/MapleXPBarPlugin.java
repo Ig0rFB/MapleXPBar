@@ -225,25 +225,23 @@ class XPBarOverlay extends Overlay
 			return null;
 		}
 
-		Point offset = null;
-		Point chatboxAnchorLocation = null;
+		final int offsetBarX;
+		final int offsetBarY;
 
-		// Determine where to draw the bar, using the anchor point config selected
-		for (Viewport viewport : Viewport.values())
+		// Bottom anchor uses the game canvas edge so chatbox size/visibility cannot shift the bar.
+		// Manual Left/Right and Up/Down offsets are still applied later in renderBar().
+		if (config.anchorPoint() == MapleXPBarAnchorMode.BOTTOM)
 		{
-			final Widget viewportWidget = client.getWidget(viewport.getViewport());
-			if (viewportWidget != null && !viewportWidget.isHidden() && viewport.getType().equals(config.anchorPoint().getMenuName()))
-			{
-				offset = viewport.getOffsetLeft();
-				chatboxAnchorLocation = viewportWidget.getCanvasLocation();
-				break;
-			}
+			offsetBarX = 0;
+			offsetBarY = client.getCanvasHeight() - config.thickness();
 		}
-
-		if (chatboxAnchorLocation == null)
+		else
 		{
-			// Chatbox or inventory might be hidden - check if a fallback is visible, and use those if applicable
-			for (FallbackViewport viewport : FallbackViewport.values())
+			Point offset = null;
+			Point chatboxAnchorLocation = null;
+
+			// Determine where to draw the bar, using the anchor point config selected
+			for (Viewport viewport : Viewport.values())
 			{
 				final Widget viewportWidget = client.getWidget(viewport.getViewport());
 				if (viewportWidget != null && !viewportWidget.isHidden() && viewport.getType().equals(config.anchorPoint().getMenuName()))
@@ -254,17 +252,29 @@ class XPBarOverlay extends Overlay
 				}
 			}
 
-			if (chatboxAnchorLocation == null){
-				// backup component not found, don't render the bar
-				return null;
+			if (chatboxAnchorLocation == null)
+			{
+				// Chatbox or inventory might be hidden - check if a fallback is visible, and use those if applicable
+				for (FallbackViewport viewport : FallbackViewport.values())
+				{
+					final Widget viewportWidget = client.getWidget(viewport.getViewport());
+					if (viewportWidget != null && !viewportWidget.isHidden() && viewport.getType().equals(config.anchorPoint().getMenuName()))
+					{
+						offset = viewport.getOffsetLeft();
+						chatboxAnchorLocation = viewportWidget.getCanvasLocation();
+						break;
+					}
+				}
+
+				if (chatboxAnchorLocation == null){
+					// backup component not found, don't render the bar
+					return null;
+				}
 			}
+
+			offsetBarX = chatboxAnchorLocation.getX() - offset.getX();
+			offsetBarY = chatboxAnchorLocation.getY() - offset.getY();
 		}
-
-		final int height, offsetBarX, offsetBarY;
-
-		height = config.thickness();
-		offsetBarX = chatboxAnchorLocation.getX() - offset.getX();
-		offsetBarY = chatboxAnchorLocation.getY() - offset.getY();
 
 		renderBar(g, config.barMode(), offsetBarX, offsetBarY);
 
@@ -332,6 +342,9 @@ class XPBarOverlay extends Overlay
 		int adjustedWidth = config.length();
 
 		int height = config.thickness();
+		boolean isBottomAnchor = config.anchorPoint() == MapleXPBarAnchorMode.BOTTOM;
+		// Only apply when Bottom is selected so other anchors keep their existing fixed length.
+		boolean matchWindowWidth = isBottomAnchor && config.matchWindowWidth();
 
 		// Y Offsets are flipped for the user's sake,
 		// so Y config values become: higher number -> UI moves up
@@ -344,8 +357,13 @@ class XPBarOverlay extends Overlay
 		boolean isTransparentChatbox = client.getVarbitValue(Varbits.TRANSPARENT_CHATBOX) == 1;
 		boolean shouldDisplaySkillIcon = config.shouldDisplaySkillIcon();
 
+		if (matchWindowWidth)
+		{
+			// Read canvas size every frame so sidebar / window resizes update the bar live
+			adjustedWidth = client.getCanvasWidth();
+		}
 		// In-game resizable mode needs some slight adjustment for default values
-		if (client.isResized()){
+		else if (client.isResized()){
 			adjustedX = x - 4;
 			adjustedWidth = config.length() + 7;
 		}
